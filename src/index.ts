@@ -1,4 +1,5 @@
-import { XTestSuite } from "x-feature-reporter";
+import { XAdapter, XTestSuite } from "x-feature-reporter";
+import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
 
 export enum XChangeType {
   Added = "added",
@@ -22,5 +23,19 @@ export class XFeatureDiff {
             suites: [],
             transparent: true
         }
+    }
+    public generateMarkdown(diff: XTestSuiteDiff): void {
+      const adapter:XAdapter = new MarkdownAdapter();
+      const titlePrefix = diff.changes === XChangeType.Modified ? "🔄" : "";
+      const report:XTestSuite = {
+        title: `${titlePrefix} ${diff.title}`,
+        suites: [],
+        tests: [{
+          title: "Test 1",
+          status: "passed",
+          testType: "behavior"
+        }]
+      } as XTestSuite;
+      adapter.generateReport([report]);
     }
 }

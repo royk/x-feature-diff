@@ -22,7 +22,8 @@
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.2",
-    "playwright-feature-reporter": "^2.3.0"
+    "playwright-feature-reporter": "^2.3.0",
+    "sinon": "^19.0.2"
   },
   "dependencies": {
     "typescript": "^5.7.2",
