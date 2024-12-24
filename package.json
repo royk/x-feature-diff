@@ -25,6 +25,7 @@
     "playwright-feature-reporter": "^2.3.0"
   },
   "dependencies": {
+    "typescript": "^5.7.2",
     "x-feature-reporter": "^3.1.0"
   }
 }
