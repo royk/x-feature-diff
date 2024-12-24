@@ -1,0 +1,27 @@
+{
+  "name": "x-feature-diff",
+  "version": "0.0.1",
+  "description": "Compares two x-feature-reports and outputs their diff to a standardized JSON format. ",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "npx playwright test",
+    "release": "release-it"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/royk/x-feature-diff.git"
+  },
+  "author": "Roy Klein",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/royk/x-feature-diff/issues"
+  },
+  "homepage": "https://github.com/royk/x-feature-diff#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "playwright-feature-reporter": "^2.3.0"
+  }
+}
