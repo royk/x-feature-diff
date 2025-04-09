@@ -4,7 +4,7 @@ Compares two x-feature-reports and outputs their diff to a standardized JSON for
 <!-- playwright-feature-reporter--start -->
 ## Core features
  - ✅ Identifies that a suite title has changed
- - ✅ Identifies that a test was added
+ - ✅ Identifies that tests were added
 ## Markdown
  - ✅ Indicates in markdown that a suite title has changed
 
