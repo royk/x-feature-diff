@@ -5,6 +5,7 @@ Compares two x-feature-reports and outputs their diff to a standardized JSON for
 ## Core features
  - ✅ Identifies that a suite title has changed
  - ✅ Identifies that a test was added
+ - ✅ Identifies that a test was removed
 ## Markdown
  - ✅ Indicates in markdown that a suite title has changed
 
