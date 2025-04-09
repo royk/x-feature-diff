@@ -19,22 +19,29 @@ export type XTestSuiteDiff = {
 export class XFeatureDiff {
   public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
     const tests:XTestSuiteDiff[] = [];
-    if (reportNew.tests.length > reportOld.tests.length) {
-      reportNew.tests.forEach(test => {
-        const testOld = reportOld.tests.find(t => t.title === test.title);
-        if (testOld) {
-          tests.push({
-            title: test.title,
-            changes: XChangeType.Unchanged,
-          });
-        } else {
-          tests.push({
-            title: test.title,
-            changes: XChangeType.Added,
-          });
-        }
-      });
-    }
+    reportNew.tests.forEach(test => {
+      const oldTest = reportOld.tests.find(t => t.title === test.title);
+      if (oldTest) {
+        tests.push({
+          title: test.title,
+          changes: XChangeType.Unchanged,
+        });
+      } else {
+        tests.push({
+          title: test.title,
+          changes: XChangeType.Added,
+        });
+      }
+    });
+    reportOld.tests.forEach(test => {
+      const newTest = reportNew.tests.find(t => t.title === test.title);
+      if (!newTest) {
+        tests.push({
+          title: test.title,
+          changes: XChangeType.Removed,
+        });
+      }
+    });
     return {
       title: reportNew.title,
       changes: reportNew.title !== reportOld.title ? XChangeType.Modified : XChangeType.Unchanged,

@@ -18,7 +18,7 @@ test.describe("Core features", () => {
       tests: []
     } as XTestSuite;
     const result = diff.diff(report1, report2) as XTestSuiteDiff;
-
+    
     expect(result.title).toBe("Suite 1");
     expect(result.changes).toBe(XChangeType.Modified);
   });
@@ -44,42 +44,74 @@ test.describe("Core features", () => {
       }]
     } as XTestSuite;
     const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
-
+    
     expect(result.tests?.length).toBe(2);
     expect(result.tests?.[0].title).toBe("Test 1");
     expect(result.tests?.[0].changes).toBe(XChangeType.Added);
     expect(result.tests?.[1].title).toBe("Test 2");
     expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
   });
-});
-
-
-test.describe("Markdown", () => {
-  let writeFileSyncStub: sinon.SinonStub;
-  test.beforeEach(() => {
-    writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
-    writeFileSyncStub.returns(undefined);
-  });
-  test.afterEach(() => {
-    sinon.restore(); 
-  });
-  test("Indicates in markdown that a suite title has changed", () => {
-    const differ = new XFeatureDiff();
-    const title = "Suite 1";
-    const report1 = {
-      title: title,
+  
+  test("Identifies that a test was removed", () => {
+    const diff = new XFeatureDiff();
+    const reportNew = {
+      title: "Suite 1",
       suites: [],
-      tests: []
+      tests: [{
+        title: "Test 1",
+        status: 'passed'
+      }]
     } as XTestSuite;
-    const report2 = {
-      title: "Suite 2",
+    const reportOld = {
+      title: "Suite 1",
       suites: [],
-      tests: []
-    } as XTestSuite;
-    const diffJson = differ.diff(report1, report2) as XTestSuiteDiff;
-    differ.generateMarkdown(diffJson);
-    const expected = `\n## 🔄 ${title}\n - ✅ Test 1\n`
-    const actual = writeFileSyncStub.getCall(0)?.args[1];
-    expect(actual).toBe(expected);
+      tests: [
+        {
+          title: "Test 1",
+          status: 'passed'
+        },
+        {
+          title: "Test 2",
+          status: 'passed'
+        }]
+      } as XTestSuite;
+      const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
+      expect(result.tests?.length).toBe(2);
+      expect(result.tests?.[0].title).toBe("Test 1");
+      expect(result.tests?.[0].changes).toBe(XChangeType.Unchanged);
+      expect(result.tests?.[1].title).toBe("Test 2");
+      expect(result.tests?.[1].changes).toBe(XChangeType.Removed);
+    }); 
   });
-});
+  
+  
+  test.describe("Markdown", () => {
+    let writeFileSyncStub: sinon.SinonStub;
+    test.beforeEach(() => {
+      writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
+      writeFileSyncStub.returns(undefined);
+    });
+    test.afterEach(() => {
+      sinon.restore(); 
+    });
+    test("Indicates in markdown that a suite title has changed", () => {
+      const differ = new XFeatureDiff();
+      const title = "Suite 1";
+      const report1 = {
+        title: title,
+        suites: [],
+        tests: []
+      } as XTestSuite;
+      const report2 = {
+        title: "Suite 2",
+        suites: [],
+        tests: []
+      } as XTestSuite;
+      const diffJson = differ.diff(report1, report2) as XTestSuiteDiff;
+      differ.generateMarkdown(diffJson);
+      const expected = `\n## 🔄 ${title}\n - ✅ Test 1\n`
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
+  });
+  
