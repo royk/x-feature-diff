@@ -8,9 +8,11 @@ export declare enum XChangeType {
 export type XTestSuiteDiff = {
     title: string;
     changes: XChangeType;
-    suites: XTestSuiteDiff[];
+    suites?: XTestSuiteDiff[];
+    tests?: XTestSuiteDiff[];
     transparent?: boolean;
 };
 export declare class XFeatureDiff {
     diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff;
+    generateMarkdown(diff: XTestSuiteDiff): void;
 }

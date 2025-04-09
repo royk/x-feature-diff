@@ -11,31 +11,41 @@ export enum XChangeType {
 export type XTestSuiteDiff = {
   title: string;
   changes: XChangeType;
-  suites: XTestSuiteDiff[];
+  suites?: XTestSuiteDiff[];
+  tests?: XTestSuiteDiff[];
   transparent?: boolean;
 }
 
 export class XFeatureDiff {
-    public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
-        return {
-            title: reportNew.title,
-            changes: reportNew.title !== reportOld.title ? XChangeType.Modified : XChangeType.Unchanged,
-            suites: [],
-            transparent: true
-        }
+  public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
+    const tests:XTestSuiteDiff[] = [];
+    if (reportNew.tests.length > reportOld.tests.length) {
+      tests.push({
+        title: reportNew.tests[0].title,
+        changes: XChangeType.Added,
+      });
     }
-    public generateMarkdown(diff: XTestSuiteDiff): void {
-      const adapter:XAdapter = new MarkdownAdapter();
-      const titlePrefix = diff.changes === XChangeType.Modified ? "🔄" : "";
-      const report:XTestSuite = {
-        title: `${titlePrefix} ${diff.title}`,
-        suites: [],
-        tests: [{
-          title: "Test 1",
-          status: "passed",
-          testType: "behavior"
-        }]
-      } as XTestSuite;
-      adapter.generateReport([report]);
+    return {
+      title: reportNew.title,
+      changes: reportNew.title !== reportOld.title ? XChangeType.Modified : XChangeType.Unchanged,
+      suites: [],
+      tests: tests,
+      transparent: true
     }
+  }
+  
+  public generateMarkdown(diff: XTestSuiteDiff): void {
+    const adapter:XAdapter = new MarkdownAdapter();
+    const titlePrefix = diff.changes === XChangeType.Modified ? "🔄" : "";
+    const report:XTestSuite = {
+      title: `${titlePrefix} ${diff.title}`,
+      suites: [],
+      tests: [{
+        title: "Test 1",
+        status: "passed",
+        testType: "behavior"
+      }]
+    } as XTestSuite;
+    adapter.generateReport([report]);
+  }
 }
