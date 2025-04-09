@@ -1,5 +1,6 @@
-import { defineConfig, devices } from '@playwright/test';
-
+import { defineConfig } from '@playwright/test';
+import { XFeatureDiff } from './src';
+import { JsonAdapter } from 'x-feature-reporter/adapters/json';
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -24,8 +25,13 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? [['github'],
                               ['html'],
-                              ['playwright-feature-reporter', { outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }]] 
-                              : 'list',
+                              ['playwright-feature-reporter', { adapter: XFeatureDiff, outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
+                              ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
+                              ] 
+                              : [['list'], 
+                              ['playwright-feature-reporter', { adapter: XFeatureDiff, adapterOptions: {inputFile:'./output.json'}, outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
+                              ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}]
+                               ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

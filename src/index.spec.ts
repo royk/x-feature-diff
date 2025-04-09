@@ -6,7 +6,7 @@ import fs from 'fs';
 
 test.describe("Core features", () => { 
   test("Identifies that a suite title has changed", () => {
-    const diff = new XFeatureDiff();
+    const diff = new XFeatureDiff({});
     const report1 = {
       title: "Suite 1",
       suites: [],
@@ -23,7 +23,7 @@ test.describe("Core features", () => {
     expect(result.changes).toBe(XChangeType.Modified);
   });
   test("Identifies that a test was added", () => {
-    const diff = new XFeatureDiff();
+    const diff = new XFeatureDiff({});
     const reportNew = {
       title: "Suite 1",
       suites: [],
@@ -51,9 +51,11 @@ test.describe("Core features", () => {
     expect(result.tests?.[1].test.title).toBe("Test 2");
     expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
   });
-  
+  test("This is a test", () => {
+    expect(true).toBe(true);
+  });
   test("Identifies that a test was removed", () => {
-    const diff = new XFeatureDiff();
+    const diff = new XFeatureDiff({});
     const reportNew = {
       title: "Suite 1",
       suites: [],
@@ -84,14 +86,30 @@ test.describe("Core features", () => {
     }); 
   });
   
-  
+  test.describe("Adapter", () => {
+    let writeFileSyncStub: sinon.SinonStub;
+    test.beforeEach(() => {
+      writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
+      writeFileSyncStub.returns(undefined);
+    });
+    test.afterEach(() => {
+      sinon.restore(); 
+    });
+    test("Accepts a JSON input file", () => {
+      const diff = new XFeatureDiff({inputFile: './test-data/output.json'});
+      diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
+      const expected = `\n## Suite title\n - ✅ Test title\n`
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
+  });
   test.describe("Markdown", () => {
     let writeFileSyncStub: sinon.SinonStub;
     let differ: XFeatureDiff;
     test.beforeEach(() => {
       writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
       writeFileSyncStub.returns(undefined);
-      differ = new XFeatureDiff();
+      differ = new XFeatureDiff({});
     });
     test.afterEach(() => {
       sinon.restore(); 
@@ -120,7 +138,7 @@ test.describe("Core features", () => {
       expect(actual).toBe(expected);
     });
     test("Indicates in markdown that a test was added", () => {
-      const diff = new XFeatureDiff();
+      const diff = new XFeatureDiff({});
       const suiteTitle = "Suite 1";
       const testTitle = "Test 1";
       const reportNew = {
