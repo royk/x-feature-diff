@@ -21,7 +21,7 @@ export type XTestTestDiff = {
   test: XTestResult;
 }
 
-export class XFeatureDiff {
+export class XFeatureDiff implements XAdapter {
   public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
     const tests:XTestTestDiff[] = [];
     reportNew.tests.forEach(test => {
@@ -56,20 +56,31 @@ export class XFeatureDiff {
     }
   }
   
-  public generateMarkdown(diff: XTestSuiteDiff): void {
-    const adapter:XAdapter = new MarkdownAdapter();
+  public generateMarkdown(diff: XTestSuiteDiff[]): void {
+    const reports:XTestSuite[] = [];
+    diff.forEach(diff => {
     const titlePrefix = diff.changes === XChangeType.Modified ? "🔄 " : "";
     const report:XTestSuite = {
       title: `${titlePrefix}${diff.title}`,
       suites: [],
       tests: []
-    } as XTestSuite;
-    diff.tests?.forEach(test => {
-      report.tests.push({
-        ...test.test,
-        title: test.changes === XChangeType.Added ? `<span style=\"color: #2da44e\">${test.test.title}</span>`: test.test.title
+      } as XTestSuite;
+      diff.tests?.forEach(test => {
+        report.tests.push({
+          ...test.test,
+          title: test.changes === XChangeType.Added ? `<span style=\"color: #2da44e\">${test.test.title}</span>`: test.test.title
+        });
       });
+      reports.push(report);
     });
-    adapter.generateReport([report]);
+    new MarkdownAdapter().generateReport(reports);
+  }
+
+  public generateReport(results: XTestSuite[]): void {
+    const diffs:XTestSuiteDiff[] = [];
+    results.forEach(result => {
+      diffs.push(this.diff(result, results[0]));
+    });
+    this.generateMarkdown(diffs);
   }
 }

@@ -114,7 +114,7 @@ test.describe("Core features", () => {
         tests: [test]
       } as XTestSuite;
       const diffJson = differ.diff(reportNew, reportOld) as XTestSuiteDiff;
-      differ.generateMarkdown(diffJson);
+      differ.generateMarkdown([diffJson]);
       const expected = `\n## 🔄 ${newTitle}\n - ✅ Test 1\n`
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
@@ -137,7 +137,7 @@ test.describe("Core features", () => {
         tests: []
       } as XTestSuite;
       const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
-      differ.generateMarkdown(result);
+      differ.generateMarkdown([result]);
       const expected = "\n## " + suiteTitle + "\n - ✅ <span style=\"color: #2da44e\">" + testTitle + "</span>\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
