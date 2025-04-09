@@ -20,9 +20,11 @@ export class XFeatureDiff {
   public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
     const tests:XTestSuiteDiff[] = [];
     if (reportNew.tests.length > reportOld.tests.length) {
-      tests.push({
-        title: reportNew.tests[0].title,
-        changes: XChangeType.Added,
+      reportNew.tests.forEach(test => {
+        tests.push({
+          title: test.title,
+          changes: XChangeType.Added,
+        });
       });
     }
     return {
