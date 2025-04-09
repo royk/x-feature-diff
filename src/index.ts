@@ -21,10 +21,18 @@ export class XFeatureDiff {
     const tests:XTestSuiteDiff[] = [];
     if (reportNew.tests.length > reportOld.tests.length) {
       reportNew.tests.forEach(test => {
-        tests.push({
-          title: test.title,
-          changes: XChangeType.Added,
-        });
+        const testOld = reportOld.tests.find(t => t.title === test.title);
+        if (testOld) {
+          tests.push({
+            title: test.title,
+            changes: XChangeType.Unchanged,
+          });
+        } else {
+          tests.push({
+            title: test.title,
+            changes: XChangeType.Added,
+          });
+        }
       });
     }
     return {

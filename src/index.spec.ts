@@ -22,7 +22,7 @@ test.describe("Core features", () => {
     expect(result.title).toBe("Suite 1");
     expect(result.changes).toBe(XChangeType.Modified);
   });
-  test("Identifies that tests were added", () => {
+  test("Identifies that a test was added", () => {
     const diff = new XFeatureDiff();
     const reportNew = {
       title: "Suite 1",
@@ -38,14 +38,18 @@ test.describe("Core features", () => {
     const reportOld = {
       title: "Suite 1",
       suites: [],
-      tests: []
+      tests: [{
+        title: "Test 2",
+        status: 'passed'
+      }]
     } as XTestSuite;
     const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
 
+    expect(result.tests?.length).toBe(2);
     expect(result.tests?.[0].title).toBe("Test 1");
     expect(result.tests?.[0].changes).toBe(XChangeType.Added);
     expect(result.tests?.[1].title).toBe("Test 2");
-    expect(result.tests?.[1].changes).toBe(XChangeType.Added);
+    expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
   });
 });
 
