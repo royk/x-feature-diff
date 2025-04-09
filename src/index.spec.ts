@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { XTestSuite } from "x-feature-reporter";
+import { XTestSuite, XTestResult } from "x-feature-reporter";
 import { XChangeType, XFeatureDiff, XTestSuiteDiff } from '.';
 import sinon from 'sinon';
 import fs from 'fs';
@@ -46,9 +46,9 @@ test.describe("Core features", () => {
     const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
     
     expect(result.tests?.length).toBe(2);
-    expect(result.tests?.[0].title).toBe("Test 1");
+    expect(result.tests?.[0].test.title).toBe("Test 1");
     expect(result.tests?.[0].changes).toBe(XChangeType.Added);
-    expect(result.tests?.[1].title).toBe("Test 2");
+    expect(result.tests?.[1].test.title).toBe("Test 2");
     expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
   });
   
@@ -77,9 +77,9 @@ test.describe("Core features", () => {
       } as XTestSuite;
       const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
       expect(result.tests?.length).toBe(2);
-      expect(result.tests?.[0].title).toBe("Test 1");
+      expect(result.tests?.[0].test.title).toBe("Test 1");
       expect(result.tests?.[0].changes).toBe(XChangeType.Unchanged);
-      expect(result.tests?.[1].title).toBe("Test 2");
+      expect(result.tests?.[1].test.title).toBe("Test 2");
       expect(result.tests?.[1].changes).toBe(XChangeType.Removed);
     }); 
   });
@@ -87,29 +87,58 @@ test.describe("Core features", () => {
   
   test.describe("Markdown", () => {
     let writeFileSyncStub: sinon.SinonStub;
+    let differ: XFeatureDiff;
     test.beforeEach(() => {
       writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
       writeFileSyncStub.returns(undefined);
+      differ = new XFeatureDiff();
     });
     test.afterEach(() => {
       sinon.restore(); 
     });
     test("Indicates in markdown that a suite title has changed", () => {
-      const differ = new XFeatureDiff();
-      const title = "Suite 1";
-      const report1 = {
-        title: title,
+      const newTitle = "Suite 1";
+      const oldTitle = "Suite 2";
+      const test = {
+        title: "Test 1",
+        status: "passed"
+      } as XTestResult;
+      const reportOld = {
+        title: oldTitle,
         suites: [],
-        tests: []
+        tests: [test]
       } as XTestSuite;
-      const report2 = {
-        title: "Suite 2",
+      const reportNew = {
+        title: newTitle,
         suites: [],
-        tests: []
+        tests: [test]
       } as XTestSuite;
-      const diffJson = differ.diff(report1, report2) as XTestSuiteDiff;
+      const diffJson = differ.diff(reportNew, reportOld) as XTestSuiteDiff;
       differ.generateMarkdown(diffJson);
-      const expected = `\n## 🔄 ${title}\n - ✅ Test 1\n`
+      const expected = `\n## 🔄 ${newTitle}\n - ✅ Test 1\n`
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
+    test("Indicates in markdown that a test was added", () => {
+      const diff = new XFeatureDiff();
+      const suiteTitle = "Suite 1";
+      const testTitle = "Test 1";
+      const reportNew = {
+        title: suiteTitle,
+        suites: [],
+        tests: [{
+          title: testTitle,
+          status: 'passed'
+        }]
+      } as XTestSuite;
+      const reportOld = {
+        title: suiteTitle,
+        suites: [],
+        tests: []
+      } as XTestSuite;
+      const result = diff.diff(reportNew, reportOld) as XTestSuiteDiff;
+      differ.generateMarkdown(result);
+      const expected = "\n## " + suiteTitle + "\n - ✅ <span style=\"color: #2da44e\">" + testTitle + "</span>\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
     });
