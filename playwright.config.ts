@@ -29,8 +29,8 @@ export default defineConfig({
                               ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
                               ] 
                               : [['list'], 
-                              ['playwright-feature-reporter', { adapter: XFeatureDiff, adapterOptions: {inputFile:'./output.json'}, outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
-                              ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}]
+                             // ['playwright-feature-reporter', { adapter: XFeatureDiff, adapterOptions: {inputFile:'./output.json'}, outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
+                              //['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}]
                                ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

@@ -24,6 +24,7 @@ export type XTestTestDiff = {
 export class XFeatureDiff implements XAdapter {
   private reportOld: XTestSuite;
   private changesOnly: boolean;
+  private outputFile: string;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
       const fs = require('fs');
@@ -31,6 +32,7 @@ export class XFeatureDiff implements XAdapter {
       this.reportOld = report;
     }
     this.changesOnly = options.changesOnly || false;
+    this.outputFile = options.outputFile || '';
   }
   public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
     const tests:XTestTestDiff[] = [];
@@ -85,7 +87,7 @@ export class XFeatureDiff implements XAdapter {
       });
       reports.push(report);
     });
-    new MarkdownAdapter().generateReport(reports);
+    new MarkdownAdapter({outputFile: this.outputFile}).generateReport(reports);
   }
 
   public generateReport(results: XTestSuite[]): void {

@@ -95,6 +95,17 @@ test.describe("Core features", () => {
     test.afterEach(() => {
       sinon.restore(); 
     });
+    test("Accepts outputFile", () => {  
+      // unstub writeFileSync
+      writeFileSyncStub.restore();
+      const outputFile = './test-data/test.md';
+      const diff = new XFeatureDiff({outputFile, inputFile: './test-data/output.json'});
+      diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
+      // look for the file
+      expect(fs.existsSync(outputFile)).toBe(true);
+      // delete the file
+      fs.unlinkSync(outputFile);
+    });
     test("Accepts a JSON input file", () => {
       const diff = new XFeatureDiff({inputFile: './test-data/output.json'});
       diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
