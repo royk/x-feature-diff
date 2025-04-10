@@ -25,9 +25,6 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? [['github'],
                               ['html'],
-                              ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
-                              ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './CHANGES.md', changesOnly: true }],
-                              ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
                               ]   
                               : [['list'], 
                               ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './README.md', fullReportLink: 'https://raw.githack.com/royk/x-feature-reporter/refs/heads/main/playwright-report/index.html' }],
