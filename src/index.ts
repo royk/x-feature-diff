@@ -1,12 +1,8 @@
 import { XAdapter, XTestSuite, XTestResult } from "x-feature-reporter";
 import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
+import { readFileSync } from 'fs';
 
-export enum XChangeType {
-  Added = "added",
-  Removed = "removed",
-  Modified = "modified",
-  Unchanged = "unchanged"
-}
+export type XChangeType = "added" | "removed" | "modified" | "unchanged";
 
 export type XTestSuiteDiff = {
   title: string;
@@ -28,8 +24,7 @@ export class XFeatureDiff implements XAdapter {
   private options: Record<string, any>;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
-      const fs = require('fs');
-      const report = JSON.parse(fs.readFileSync(options.inputFile, 'utf8'));
+      const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
       this.reportOld = report;
     }
     this.changesOnly = options.changesOnly || false;
@@ -41,13 +36,13 @@ export class XFeatureDiff implements XAdapter {
       const oldTest = reportOld.tests.find(t => t.title === test.title);
       if (oldTest) {
         tests.push({
-          changes: XChangeType.Unchanged,
+          changes: "unchanged",
           test,
           transparent: this.changesOnly
         });
       } else {
         tests.push({
-          changes: XChangeType.Added,
+          changes: "added",
           test,
         });
       }
@@ -56,14 +51,14 @@ export class XFeatureDiff implements XAdapter {
       const newTest = reportNew.tests.find(t => t.title === test.title);
       if (!newTest) {
         tests.push({
-          changes: XChangeType.Removed,
+          changes: "removed",
           test,
         });
       }
     });
     return {
       title: reportNew.title,
-      changes: reportNew.title !== reportOld.title ? XChangeType.Modified : XChangeType.Unchanged,
+      changes: reportNew.title !== reportOld.title ? "modified" : "unchanged",
       suites: [],
       tests: tests,
       transparent: true
@@ -73,7 +68,7 @@ export class XFeatureDiff implements XAdapter {
   public generateMarkdown(diff: XTestSuiteDiff[]): void {
     const reports:XTestSuite[] = [];
     diff.forEach(diff => {
-    const titlePrefix = diff.changes === XChangeType.Modified ? "🔄 " : "";
+    const titlePrefix = diff.changes === "modified" ? "🔄 " : "";
     const report:XTestSuite = {
       title: `${titlePrefix}${diff.title}`,
       suites: [],
@@ -83,7 +78,7 @@ export class XFeatureDiff implements XAdapter {
         if (test.transparent) {
           return;
         }
-        const emoji = test.changes === XChangeType.Added ? "🆕 " : test.changes === XChangeType.Removed ? "🗑️ " : "";
+        const emoji = test.changes === "added" ? "🆕 " : test.changes === "removed" ? "🗑️ " : "";
         report.tests.push({
           ...test.test,
           title: `${emoji}${test.test.title}`

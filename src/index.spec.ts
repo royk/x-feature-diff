@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 import type { XTestSuite, XTestResult } from "x-feature-reporter";
-import * as XFeatureDiffModule from './index.js';
+import * as XFeatureDiffModule from 'x-feature-diff';
 import sinon from 'sinon';
 import fs from 'fs';
 
-const { XChangeType, XFeatureDiff } = XFeatureDiffModule;
+const { XFeatureDiff } = XFeatureDiffModule;
 
 test.describe("Core features", () => { 
   test("Identifies that a suite title has changed", () => {
@@ -22,7 +22,7 @@ test.describe("Core features", () => {
     const result = diff.diff(report1, report2);
     
     expect(result.title).toBe("Suite 1");
-    expect(result.changes).toBe(XChangeType.Modified);
+    expect(result.changes).toBe("modified");
   });
   test("Identifies that a test was added", () => {
     const diff = new XFeatureDiff({});
@@ -49,9 +49,9 @@ test.describe("Core features", () => {
     
     expect(result.tests?.length).toBe(2);
     expect(result.tests?.[0].test.title).toBe("Test 1");
-    expect(result.tests?.[0].changes).toBe(XChangeType.Added);
+    expect(result.tests?.[0].changes).toBe("added");
     expect(result.tests?.[1].test.title).toBe("Test 2");
-    expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
+    expect(result.tests?.[1].changes).toBe("unchanged");
   });
   test("Identifies that a test was removed", () => {
     const diff = new XFeatureDiff({});
@@ -79,9 +79,9 @@ test.describe("Core features", () => {
       const result = diff.diff(reportNew, reportOld);
       expect(result.tests?.length).toBe(2);
       expect(result.tests?.[0].test.title).toBe("Test 1");
-      expect(result.tests?.[0].changes).toBe(XChangeType.Unchanged);
+      expect(result.tests?.[0].changes).toBe("unchanged");
       expect(result.tests?.[1].test.title).toBe("Test 2");
-      expect(result.tests?.[1].changes).toBe(XChangeType.Removed);
+      expect(result.tests?.[1].changes).toBe("removed");
     }); 
   });
   

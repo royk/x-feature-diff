@@ -1,10 +1,5 @@
 import { XAdapter, XTestSuite, XTestResult } from "x-feature-reporter";
-export declare enum XChangeType {
-    Added = "added",
-    Removed = "removed",
-    Modified = "modified",
-    Unchanged = "unchanged"
-}
+export type XChangeType = "added" | "removed" | "modified" | "unchanged";
 export type XTestSuiteDiff = {
     title: string;
     changes: XChangeType;
@@ -15,6 +10,7 @@ export type XTestSuiteDiff = {
 export type XTestTestDiff = {
     changes: XChangeType;
     test: XTestResult;
+    transparent?: boolean;
 };
 export declare class XFeatureDiff implements XAdapter {
     private reportOld;

@@ -1,19 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.XFeatureDiff = exports.XChangeType = void 0;
-const markdown_1 = require("x-feature-reporter/adapters/markdown");
-var XChangeType;
-(function (XChangeType) {
-    XChangeType["Added"] = "added";
-    XChangeType["Removed"] = "removed";
-    XChangeType["Modified"] = "modified";
-    XChangeType["Unchanged"] = "unchanged";
-})(XChangeType || (exports.XChangeType = XChangeType = {}));
-class XFeatureDiff {
+import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
+import { readFileSync } from 'fs';
+export class XFeatureDiff {
     constructor(options) {
         if (options.inputFile) {
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync(options.inputFile, 'utf8'));
+            const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
             this.reportOld = report;
         }
         this.changesOnly = options.changesOnly || false;
@@ -24,16 +14,15 @@ class XFeatureDiff {
         reportNew.tests.forEach(test => {
             const oldTest = reportOld.tests.find(t => t.title === test.title);
             if (oldTest) {
-                if (!this.changesOnly) {
-                    tests.push({
-                        changes: XChangeType.Unchanged,
-                        test,
-                    });
-                }
+                tests.push({
+                    changes: "unchanged",
+                    test,
+                    transparent: this.changesOnly
+                });
             }
             else {
                 tests.push({
-                    changes: XChangeType.Added,
+                    changes: "added",
                     test,
                 });
             }
@@ -42,14 +31,14 @@ class XFeatureDiff {
             const newTest = reportNew.tests.find(t => t.title === test.title);
             if (!newTest) {
                 tests.push({
-                    changes: XChangeType.Removed,
+                    changes: "removed",
                     test,
                 });
             }
         });
         return {
             title: reportNew.title,
-            changes: reportNew.title !== reportOld.title ? XChangeType.Modified : XChangeType.Unchanged,
+            changes: reportNew.title !== reportOld.title ? "modified" : "unchanged",
             suites: [],
             tests: tests,
             transparent: true
@@ -59,18 +48,22 @@ class XFeatureDiff {
         const reports = [];
         diff.forEach(diff => {
             var _a;
-            const titlePrefix = diff.changes === XChangeType.Modified ? "🔄 " : "";
+            const titlePrefix = diff.changes === "modified" ? "🔄 " : "";
             const report = {
                 title: `${titlePrefix}${diff.title}`,
                 suites: [],
                 tests: []
             };
             (_a = diff.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
-                report.tests.push(Object.assign(Object.assign({}, test.test), { title: test.changes === XChangeType.Added ? `🆕 ${test.test.title}` : test.test.title }));
+                if (test.transparent) {
+                    return;
+                }
+                const emoji = test.changes === "added" ? "🆕 " : test.changes === "removed" ? "🗑️ " : "";
+                report.tests.push(Object.assign(Object.assign({}, test.test), { title: `${emoji}${test.test.title}` }));
             });
             reports.push(report);
         });
-        new markdown_1.MarkdownAdapter({
+        new MarkdownAdapter({
             outputFile: this.options.outputFile,
             embeddingPlaceholder: this.options.embeddingPlaceholder,
             fullReportLink: this.options.fullReportLink
@@ -86,4 +79,3 @@ class XFeatureDiff {
         }
     }
 }
-exports.XFeatureDiff = XFeatureDiff;

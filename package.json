@@ -4,6 +4,7 @@
   "description": "Compares two x-feature-reports and outputs their diff to a standardized JSON format. ",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "npx playwright test",

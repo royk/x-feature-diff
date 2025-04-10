@@ -1,7 +1,7 @@
 .PHONY: test test-watch build release commit-types
 
 test:
-	npm test
+	npm run build && npm test
 
 test-watch:
 	PWTEST_WATCH=1 npm test	
