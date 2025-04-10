@@ -76,7 +76,7 @@ export class XFeatureDiff implements XAdapter {
       diff.tests?.forEach(test => {
         report.tests.push({
           ...test.test,
-          title: test.changes === XChangeType.Added ? `<span style=\"color: #2da44e\">${test.test.title}</span>`: test.test.title
+          title: test.changes === XChangeType.Added ? `🆕 ${test.test.title}`: test.test.title
         });
       });
       reports.push(report);
