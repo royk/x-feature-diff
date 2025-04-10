@@ -19,6 +19,7 @@ export type XTestSuiteDiff = {
 export type XTestTestDiff = {
   changes: XChangeType;
   test: XTestResult;
+  transparent?: boolean;
 }
 
 export class XFeatureDiff implements XAdapter {
@@ -39,12 +40,11 @@ export class XFeatureDiff implements XAdapter {
     reportNew.tests.forEach(test => {
       const oldTest = reportOld.tests.find(t => t.title === test.title);
       if (oldTest) {
-        if (!this.changesOnly) {
-          tests.push({
-            changes: XChangeType.Unchanged,
-            test,
-          });
-        }
+        tests.push({
+          changes: XChangeType.Unchanged,
+          test,
+          transparent: this.changesOnly
+        });
       } else {
         tests.push({
           changes: XChangeType.Added,
@@ -80,9 +80,13 @@ export class XFeatureDiff implements XAdapter {
       tests: []
       } as XTestSuite;
       diff.tests?.forEach(test => {
+        if (test.transparent) {
+          return;
+        }
+        const emoji = test.changes === XChangeType.Added ? "🆕 " : test.changes === XChangeType.Removed ? "❌ " : "";
         report.tests.push({
           ...test.test,
-          title: test.changes === XChangeType.Added ? `🆕 ${test.test.title}`: test.test.title
+          title: `${emoji}${test.test.title}`
         });
       });
       reports.push(report);
