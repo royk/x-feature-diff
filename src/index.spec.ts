@@ -1,10 +1,17 @@
 import { test, expect } from '@playwright/test';
 import type { XTestSuite, XTestResult } from "x-feature-reporter";
-import * as XFeatureDiffModule from 'x-feature-diff';
+let XFeatureDiff: any = null;
+if (!process.env.CI) {
+  import('x-feature-diff').then(module => {
+    XFeatureDiff = module.XFeatureDiff;
+  });
+} else {
+  import('./index').then(module => {
+    XFeatureDiff = module.XFeatureDiff;
+  });
+}
 import sinon from 'sinon';
 import fs from 'fs';
-
-const { XFeatureDiff } = XFeatureDiffModule;
 
 test.describe("Core features", () => { 
   test("Identifies that a suite title has changed", () => {
