@@ -1,6 +1,16 @@
 import { defineConfig } from '@playwright/test';
-import { XFeatureDiff } from 'x-feature-diff';
-import { JsonAdapter } from 'x-feature-reporter/adapters/json';
+// Conditionally import x-feature-diff only when not in CI
+let XFeatureDiff: any = null;
+let JsonAdapter: any = null;
+if (!process.env.CI) {
+  import('x-feature-diff').then(module => {
+    XFeatureDiff = module.XFeatureDiff;
+  });
+  import('x-feature-reporter/adapters/json').then(module => {
+    JsonAdapter = module.JsonAdapter;
+  });
+}
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
