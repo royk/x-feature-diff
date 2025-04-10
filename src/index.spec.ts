@@ -51,9 +51,6 @@ test.describe("Core features", () => {
     expect(result.tests?.[1].test.title).toBe("Test 2");
     expect(result.tests?.[1].changes).toBe(XChangeType.Unchanged);
   });
-  test("This is a test", () => {
-    expect(true).toBe(true);
-  });
   test("Identifies that a test was removed", () => {
     const diff = new XFeatureDiff({});
     const reportNew = {
