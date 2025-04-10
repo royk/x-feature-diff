@@ -178,4 +178,27 @@ test.describe("Core features", () => {
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
     });
+    test("Indicates in markdown that a test was removed", () => {
+      const diff = new XFeatureDiff({});
+      const suiteTitle = "Suite 1";
+      const testTitle = "Test 1";
+      const reportNew = {
+        title: suiteTitle,
+        suites: [],
+        tests: []
+      } as XTestSuite;
+      const reportOld = {
+        title: suiteTitle,
+        suites: [],
+        tests: [{
+          title: testTitle,
+          status: 'passed'
+        }]
+      } as XTestSuite;
+      const result = diff.diff(reportNew, reportOld);
+      differ.generateMarkdown([result]);
+      const expected = "\n## " + suiteTitle + "\n - ✅ 🗑️ " + testTitle + "\n"
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
   });

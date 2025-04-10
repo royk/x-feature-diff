@@ -83,7 +83,7 @@ export class XFeatureDiff implements XAdapter {
         if (test.transparent) {
           return;
         }
-        const emoji = test.changes === XChangeType.Added ? "🆕 " : test.changes === XChangeType.Removed ? "❌ " : "";
+        const emoji = test.changes === XChangeType.Added ? "🆕 " : test.changes === XChangeType.Removed ? "🗑️ " : "";
         report.tests.push({
           ...test.test,
           title: `${emoji}${test.test.title}`
