@@ -1,7 +1,7 @@
 # x-feature-diff
 Compares two x-feature-reports and outputs their diff to a standardized JSON format.
 
-<!-- x-feature-reporter--start -->
+<!-- playwright-feature-reporter--start -->
 ## Core features
  - ✅ Identifies that a suite title has changed
  - ✅ Identifies that a test was added
