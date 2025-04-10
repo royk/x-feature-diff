@@ -9,6 +9,7 @@ Compares two x-feature-reports and outputs their diff to a standardized JSON for
  - ✅ Identifies that a test was removed
 ## Adapter
  - ✅ Accepts a JSON input file
+ - ✅ Accepts a switch that indicates to only render changes
 ## Markdown
  - ✅ Indicates in markdown that a suite title has changed
  - ✅ Indicates in markdown that a test was added
