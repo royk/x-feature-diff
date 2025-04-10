@@ -8,6 +8,7 @@ Compares two x-feature-reports and outputs their diff to a standardized JSON for
  - ✅ This is a test
  - ✅ Identifies that a test was removed
 ## Adapter
+ - ✅ Accepts outputFile
  - ✅ Accepts a JSON input file
  - ✅ Accepts a switch that indicates to only render changes
 ## Markdown
