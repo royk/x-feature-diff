@@ -23,22 +23,26 @@ export type XTestTestDiff = {
 
 export class XFeatureDiff implements XAdapter {
   private reportOld: XTestSuite;
+  private changesOnly: boolean;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
       const fs = require('fs');
       const report = JSON.parse(fs.readFileSync(options.inputFile, 'utf8'));
       this.reportOld = report;
     }
+    this.changesOnly = options.changesOnly || false;
   }
   public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
     const tests:XTestTestDiff[] = [];
     reportNew.tests.forEach(test => {
       const oldTest = reportOld.tests.find(t => t.title === test.title);
       if (oldTest) {
-        tests.push({
-          changes: XChangeType.Unchanged,
-          test,
-        });
+        if (!this.changesOnly) {
+          tests.push({
+            changes: XChangeType.Unchanged,
+            test,
+          });
+        }
       } else {
         tests.push({
           changes: XChangeType.Added,

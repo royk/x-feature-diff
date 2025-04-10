@@ -102,6 +102,13 @@ test.describe("Core features", () => {
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
     });
+    test("Accepts a switch that indicates to only render changes", () => {
+      const diff = new XFeatureDiff({inputFile: './test-data/output.json', changesOnly: true});
+      diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
+      const expected = `\n`;
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
   });
   test.describe("Markdown", () => {
     let writeFileSyncStub: sinon.SinonStub;
