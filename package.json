@@ -27,6 +27,6 @@
   },
   "dependencies": {
     "typescript": "^5.7.2",
-    "x-feature-reporter": "^3.1.0"
+    "x-feature-reporter": "^3.2.0"
   }
 }
