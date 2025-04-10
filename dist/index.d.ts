@@ -18,6 +18,8 @@ export type XTestTestDiff = {
 };
 export declare class XFeatureDiff implements XAdapter {
     private reportOld;
+    private changesOnly;
+    private options;
     constructor(options: Record<string, any>);
     diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff;
     generateMarkdown(diff: XTestSuiteDiff[]): void;

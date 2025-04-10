@@ -15,18 +15,21 @@ class XFeatureDiff {
             const fs = require('fs');
             const report = JSON.parse(fs.readFileSync(options.inputFile, 'utf8'));
             this.reportOld = report;
-            console.log(this.reportOld);
         }
+        this.changesOnly = options.changesOnly || false;
+        this.options = options;
     }
     diff(reportNew, reportOld) {
         const tests = [];
         reportNew.tests.forEach(test => {
             const oldTest = reportOld.tests.find(t => t.title === test.title);
             if (oldTest) {
-                tests.push({
-                    changes: XChangeType.Unchanged,
-                    test,
-                });
+                if (!this.changesOnly) {
+                    tests.push({
+                        changes: XChangeType.Unchanged,
+                        test,
+                    });
+                }
             }
             else {
                 tests.push({
@@ -63,18 +66,24 @@ class XFeatureDiff {
                 tests: []
             };
             (_a = diff.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
-                report.tests.push(Object.assign(Object.assign({}, test.test), { title: test.changes === XChangeType.Added ? `<span style=\"color: #2da44e\">${test.test.title}</span>` : test.test.title }));
+                report.tests.push(Object.assign(Object.assign({}, test.test), { title: test.changes === XChangeType.Added ? `🆕 ${test.test.title}` : test.test.title }));
             });
             reports.push(report);
         });
-        new markdown_1.MarkdownAdapter().generateReport(reports);
+        new markdown_1.MarkdownAdapter({
+            outputFile: this.options.outputFile,
+            embeddingPlaceholder: this.options.embeddingPlaceholder,
+            fullReportLink: this.options.fullReportLink
+        }).generateReport(reports);
     }
     generateReport(results) {
         const diffs = [];
-        results.forEach(result => {
-            diffs.push(this.diff(result, this.reportOld[0]));
-        });
-        this.generateMarkdown(diffs);
+        if (this.reportOld) {
+            results.forEach(result => {
+                diffs.push(this.diff(result, this.reportOld[0]));
+            });
+            this.generateMarkdown(diffs);
+        }
     }
 }
 exports.XFeatureDiff = XFeatureDiff;
