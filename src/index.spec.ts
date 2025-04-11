@@ -96,32 +96,12 @@ test.describe("Diffing", () => {
   });
   test.describe("Generating", () => {
     test("Doesn't duplicate tests in suits", () => {
-      const diff = new XFeatureDiff({});
-      const test1: XTestTestDiff = {
-        changes: "unchanged",
-        test: {
-          title: "Test 1",
-          status: "passed"
-        }
-      } as XTestTestDiff;
-      const suite1: XTestSuiteDiff = {
-        title: "Suite 1",
-        suites: [],
-        tests: [test1],
-        changes: "unchanged"
-      } as XTestSuiteDiff;
-      const suite2: XTestSuiteDiff = {
-        title: "Suite 2",
-        suites: [],
-        tests: [],
-        changes: "unchanged"
-      } as XTestSuiteDiff;
-      const results = diff.compareAllSuites([suite1, suite2]);
-      expect(results.length).toBe(2);
-      expect(results[0].title).toBe("Suite 1");
-      expect(results[0].tests.length).toBe(1);
-      expect(results[1].title).toBe("Suite 2");
-      expect(results[1].tests.length).toBe(0);
+      const oldResults = JSON.parse(fs.readFileSync('./test-data/output2-old.json', 'utf8'));
+      const newResults = JSON.parse(fs.readFileSync('./test-data/output2-new.json', 'utf8'));
+      const diff = new XFeatureDiff({inputFile: './test-data/output2-old.json', outputFile: './test-data/test.md'});
+
+      const diffs = diff.compareAllSuites(newResults, oldResults);
+      expect(diffs.length).toBe(2);
     });
   });
   test.describe("Adapter", () => {
@@ -149,6 +129,14 @@ test.describe("Diffing", () => {
       diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
       const expected = `\n## Suite title\n - ✅ Test title\n`
       const actual = writeFileSyncStub.getCall(0)?.args[1];
+      expect(actual).toBe(expected);
+    });
+    test("Can handle missing output file", () => {
+      const diff = new XFeatureDiff({inputFile: './test-data/not-there.json'});
+      diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
+      const actual = writeFileSyncStub.getCall(0)?.args[1];
+      const expected = `\n## 🆕 Suite title\n - ✅ 🆕 Test title\n`
+      console.log(actual);
       expect(actual).toBe(expected);
     });
     test("Accepts a switch that indicates to only render changes", () => {
@@ -189,7 +177,7 @@ test.describe("Diffing", () => {
         tests: [test]
       } as XTestSuite;
       const diffJson = differ.compareSuites(reportNew, reportOld);
-      differ.generateMarkdown(differ.compareAllSuites([diffJson]));
+      differ.generateMarkdown(differ.mergeSuites([diffJson]));
       const expected = `\n## 🔄 ${newTitle}\n - ✅ Test 1\n`
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
@@ -212,7 +200,7 @@ test.describe("Diffing", () => {
         tests: []
       } as XTestSuite;
       const result = diff.compareSuites(reportNew, reportOld);
-      differ.generateMarkdown(differ.compareAllSuites([result]));
+      differ.generateMarkdown(differ.mergeSuites([result]));
       const expected = "\n## " + suiteTitle + "\n - ✅ 🆕 " + testTitle + "\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
@@ -235,7 +223,7 @@ test.describe("Diffing", () => {
         }]
       } as XTestSuite;
       const result = diff.compareSuites(reportNew, reportOld);
-      differ.generateMarkdown(differ.compareAllSuites([result]));
+      differ.generateMarkdown(differ.mergeSuites([result]));
       const expected = "\n## " + suiteTitle + "\n - ✅ 🗑️ " + testTitle + "\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);

@@ -1,6 +1,6 @@
 import { XAdapter, XTestSuite, XTestResult } from "x-feature-reporter";
 import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 export type XChangeType = "added" | "removed" | "modified" | "unchanged";
 
@@ -19,13 +19,18 @@ export interface XTestTestDiff {
 }
 
 export class XFeatureDiff implements XAdapter {
-  private oldResults: XTestSuite;
+  private oldResults: XTestSuite[];
   private changesOnly: boolean;
   private options: Record<string, any>;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
-      const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
-      this.oldResults = report;
+      // check if the file exists
+      if (!existsSync(options.inputFile)) {
+        this.oldResults = [];
+      } else {
+        const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
+        this.oldResults = report;
+      }
     }
     this.changesOnly = options.changesOnly || false;
     this.options = options;
@@ -64,15 +69,29 @@ export class XFeatureDiff implements XAdapter {
     }
   }
   
-  public compareAllSuites(suites: XTestSuiteDiff[]): XTestSuite[] {
+  public mergeSuites(suites: XTestSuiteDiff[]): XTestSuite[] {
     const reports:XTestSuite[] = [];
     suites.forEach(suite => {
-      const titlePrefix = suite.changes === "modified" ? "🔄 " : "";
+      let titlePrefix = "";
+      switch (suite.changes) {
+        case "added":
+          titlePrefix = "🆕 ";
+          break;
+        case "removed":
+          titlePrefix = "🗑️ ";
+          break;
+        case "modified":
+          titlePrefix = "🔄 ";
+          break;
+        case "unchanged":
+          break;
+      }
       const report:XTestSuite = {
         title: `${titlePrefix}${suite.title}`,
         suites: [],
         tests: []
       } as XTestSuite;
+      console.log(suite.tests);
       suite.tests?.forEach(test => {
         if (test.transparent) {
           return;
@@ -89,6 +108,26 @@ export class XFeatureDiff implements XAdapter {
     return reports;
   }
 
+  public compareAllSuites(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[] {
+    const diffs:XTestSuiteDiff[] = [];
+    newSuite.forEach(suite => {
+      const compareTo = oldSuite.find(s => s.title === suite.title);
+      if (compareTo) {
+        diffs.push(this.compareSuites(suite, compareTo));
+      } else {
+        diffs.push({
+          title: suite.title,
+          changes: "added",
+          tests: suite.tests.map(test => ({
+            changes: "added",
+            test: test
+          }))
+        });
+      }
+    });
+    return diffs;
+  }
+
   public generateMarkdown(results: XTestSuite[]): void {
     new MarkdownAdapter({
       outputFile: this.options.outputFile,
@@ -98,14 +137,8 @@ export class XFeatureDiff implements XAdapter {
   }
   
   public generateReport(results: XTestSuite[]): void {
-    const diffs:XTestSuiteDiff[] = [];
-    if (this.oldResults) {
-      results.forEach(result => {
-        diffs.push(this.compareSuites(result, this.oldResults[0]));
-      });
-      const reports = this.compareAllSuites(diffs)
-      this.generateMarkdown(reports);
-      
-    }
+    const diffs = this.compareAllSuites(results, this.oldResults);
+    const reports = this.mergeSuites(diffs);
+    this.generateMarkdown(reports);
   }
 }

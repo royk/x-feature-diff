@@ -1,0 +1,32 @@
+[
+    {
+        "title": "Diffing",
+        "transparent": false,
+        "suites":
+        [],
+        "tests":
+        [
+            {
+                "title": "Identifies that a test was removed",
+                "status": "passed"
+            },
+            {
+                "title": "Identifies something else",
+                "status": "passed"
+            }
+        ]
+    },
+    {
+        "title": "Markdown",
+        "transparent": false,
+        "suites":
+        [],
+        "tests":
+        [
+            {
+                "title": "Indicates in markdown that a test was removed",
+                "status": "passed"
+            }
+        ]
+    }
+]

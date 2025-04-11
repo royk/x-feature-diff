@@ -1,10 +1,16 @@
 import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 export class XFeatureDiff {
     constructor(options) {
         if (options.inputFile) {
-            const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
-            this.oldResults = report;
+            // check if the file exists
+            if (!existsSync(options.inputFile)) {
+                this.oldResults = [];
+            }
+            else {
+                const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
+                this.oldResults = report;
+            }
         }
         this.changesOnly = options.changesOnly || false;
         this.options = options;
@@ -43,16 +49,30 @@ export class XFeatureDiff {
             tests: tests,
         };
     }
-    compareAllSuites(suites) {
+    mergeSuites(suites) {
         const reports = [];
         suites.forEach(suite => {
             var _a;
-            const titlePrefix = suite.changes === "modified" ? "🔄 " : "";
+            let titlePrefix = "";
+            switch (suite.changes) {
+                case "added":
+                    titlePrefix = "🆕 ";
+                    break;
+                case "removed":
+                    titlePrefix = "🗑️ ";
+                    break;
+                case "modified":
+                    titlePrefix = "🔄 ";
+                    break;
+                case "unchanged":
+                    break;
+            }
             const report = {
                 title: `${titlePrefix}${suite.title}`,
                 suites: [],
                 tests: []
             };
+            console.log(suite.tests);
             (_a = suite.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
                 if (test.transparent) {
                     return;
@@ -64,6 +84,26 @@ export class XFeatureDiff {
         });
         return reports;
     }
+    compareAllSuites(newSuite, oldSuite) {
+        const diffs = [];
+        newSuite.forEach(suite => {
+            const compareTo = oldSuite.find(s => s.title === suite.title);
+            if (compareTo) {
+                diffs.push(this.compareSuites(suite, compareTo));
+            }
+            else {
+                diffs.push({
+                    title: suite.title,
+                    changes: "added",
+                    tests: suite.tests.map(test => ({
+                        changes: "added",
+                        test: test
+                    }))
+                });
+            }
+        });
+        return diffs;
+    }
     generateMarkdown(results) {
         new MarkdownAdapter({
             outputFile: this.options.outputFile,
@@ -72,13 +112,8 @@ export class XFeatureDiff {
         }).generateReport(results);
     }
     generateReport(results) {
-        const diffs = [];
-        if (this.oldResults) {
-            results.forEach(result => {
-                diffs.push(this.compareSuites(result, this.oldResults[0]));
-            });
-            const reports = this.compareAllSuites(diffs);
-            this.generateMarkdown(reports);
-        }
+        const diffs = this.compareAllSuites(results, this.oldResults);
+        const reports = this.mergeSuites(diffs);
+        this.generateMarkdown(reports);
     }
 }
