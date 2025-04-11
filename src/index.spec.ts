@@ -136,7 +136,6 @@ test.describe("Diffing", () => {
       diff.generateReport([{title: "Suite title", suites: [], tests: [{title: "Test title", status: "passed"}]}]);
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       const expected = `\n## 🆕 Suite title\n - ✅ 🆕 Test title\n`
-      console.log(actual);
       expect(actual).toBe(expected);
     });
     test("Accepts a switch that indicates to only render changes", () => {

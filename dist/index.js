@@ -49,36 +49,35 @@ export class XFeatureDiff {
             tests: tests,
         };
     }
+    getChangeEmoji(change) {
+        switch (change) {
+            case "added":
+                return "🆕 ";
+            case "removed":
+                return "🗑️ ";
+                break;
+            case "modified":
+                return "🔄 ";
+            case "unchanged":
+                return "";
+        }
+    }
     mergeSuites(suites) {
         const reports = [];
         suites.forEach(suite => {
             var _a;
-            let titlePrefix = "";
-            switch (suite.changes) {
-                case "added":
-                    titlePrefix = "🆕 ";
-                    break;
-                case "removed":
-                    titlePrefix = "🗑️ ";
-                    break;
-                case "modified":
-                    titlePrefix = "🔄 ";
-                    break;
-                case "unchanged":
-                    break;
-            }
+            const titlePrefix = this.getChangeEmoji(suite.changes);
             const report = {
                 title: `${titlePrefix}${suite.title}`,
                 suites: [],
                 tests: []
             };
-            console.log(suite.tests);
             (_a = suite.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
                 if (test.transparent) {
                     return;
                 }
-                const emoji = test.changes === "added" ? "🆕 " : test.changes === "removed" ? "🗑️ " : "";
-                report.tests.push(Object.assign(Object.assign({}, test.test), { title: `${emoji}${test.test.title}` }));
+                const testTitlePrefix = this.getChangeEmoji(test.changes);
+                report.tests.push(Object.assign(Object.assign({}, test.test), { title: `${testTitlePrefix}${test.test.title}` }));
             });
             reports.push(report);
         });

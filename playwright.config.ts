@@ -27,8 +27,8 @@ async function getConfig() {
                                 ['html'],
                                 ]   
                                 : [['list'], 
-                                 ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './CHANGES.md', changesOnly: false }],
-                                ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
+                                //  ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './CHANGES.md', changesOnly: false }],
+                                // ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
                                  ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {

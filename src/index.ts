@@ -68,38 +68,38 @@ export class XFeatureDiff implements XAdapter {
       tests: tests,
     }
   }
+
+  private getChangeEmoji(change: XChangeType): string {
+    switch (change) {
+      case "added":
+        return "🆕 ";
+      case "removed":
+        return "🗑️ ";
+        break;
+      case "modified":
+        return "🔄 ";
+      case "unchanged":
+        return "";
+    }
+  }
   
   public mergeSuites(suites: XTestSuiteDiff[]): XTestSuite[] {
     const reports:XTestSuite[] = [];
     suites.forEach(suite => {
-      let titlePrefix = "";
-      switch (suite.changes) {
-        case "added":
-          titlePrefix = "🆕 ";
-          break;
-        case "removed":
-          titlePrefix = "🗑️ ";
-          break;
-        case "modified":
-          titlePrefix = "🔄 ";
-          break;
-        case "unchanged":
-          break;
-      }
+      const titlePrefix = this.getChangeEmoji(suite.changes);
       const report:XTestSuite = {
         title: `${titlePrefix}${suite.title}`,
         suites: [],
         tests: []
       } as XTestSuite;
-      console.log(suite.tests);
       suite.tests?.forEach(test => {
         if (test.transparent) {
           return;
         }
-        const emoji = test.changes === "added" ? "🆕 " : test.changes === "removed" ? "🗑️ " : "";
+        const testTitlePrefix = this.getChangeEmoji(test.changes);
         report.tests.push({
           ...test.test,
-          title: `${emoji}${test.test.title}`
+          title: `${testTitlePrefix}${test.test.title}`
         });
       });
       reports.push(report);
