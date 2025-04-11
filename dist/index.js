@@ -3,7 +3,6 @@ import { existsSync, readFileSync } from 'fs';
 export class XFeatureDiff {
     constructor(options) {
         if (options.inputFile) {
-            // check if the file exists
             if (!existsSync(options.inputFile)) {
                 this.oldResults = [];
             }

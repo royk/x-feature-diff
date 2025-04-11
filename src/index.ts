@@ -24,7 +24,6 @@ export class XFeatureDiff implements XAdapter {
   private options: Record<string, any>;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
-      // check if the file exists
       if (!existsSync(options.inputFile)) {
         this.oldResults = [];
       } else {
