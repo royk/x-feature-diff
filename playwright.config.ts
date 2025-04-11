@@ -2,15 +2,6 @@ import { defineConfig } from '@playwright/test';
 
 // Create an async function to handle the imports
 async function getConfig() {
-  let XFeatureDiff: any = null;
-  let JsonAdapter: any = null;
-  
-  if (!process.env.CI) {
-    const xFeatureDiffModule = await import('x-feature-diff');
-    const jsonAdapterModule = await import('x-feature-reporter/adapters/json');
-    XFeatureDiff = xFeatureDiffModule.XFeatureDiff;
-    JsonAdapter = jsonAdapterModule.JsonAdapter;
-  }
 
   return defineConfig({
     testDir: './src',
@@ -27,8 +18,8 @@ async function getConfig() {
                                 ['html'],
                                 ]   
                                 : [['list'], 
-                                //  ['playwright-feature-reporter', { adapter: XFeatureDiff, inputFile: './output.json', outputFile: './CHANGES.md', changesOnly: false }],
-                                // ['playwright-feature-reporter', {adapter: JsonAdapter, outputFile: './output.json'}],
+                                 ['playwright-feature-reporter', { outputFile: './README.md' }],
+                                ['playwright-feature-reporter', {outputFormat: 'json', outputFile: './output.json'}],
                                  ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {

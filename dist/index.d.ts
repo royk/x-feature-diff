@@ -1,4 +1,4 @@
-import { XAdapter, XTestSuite, XTestResult } from "x-feature-reporter";
+import type { XTestSuite as XTestSuite, XTestResult as XTestResult, XAdapter } from 'x-feature-reporter';
 export type XChangeType = "added" | "removed" | "modified" | "unchanged";
 export interface XTestSuiteDiff {
     title: string;

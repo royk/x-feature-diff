@@ -1,4 +1,4 @@
-import { XAdapter, XTestSuite, XTestResult } from "x-feature-reporter";
+import type { XTestSuite as XTestSuite, XTestResult as XTestResult, XAdapter } from 'x-feature-reporter';
 import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
 import { existsSync, readFileSync } from 'fs';
 

@@ -1,16 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { XTestSuite, XTestResult } from "x-feature-reporter";
-let XFeatureDiff: any = null;
-test.beforeAll(async () => {
-  if (!process.env.CI) {
-    const module = await import('x-feature-diff');
-    XFeatureDiff = module.XFeatureDiff;
-  } else {
-    const module = await import('./index');
-    XFeatureDiff = module.XFeatureDiff;
-  }
-});
-
+import { XFeatureDiff } from './index';
 import sinon from 'sinon';
 import fs from 'fs';
 
