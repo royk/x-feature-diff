@@ -13,4 +13,15 @@ test.describe("x-feature-diff", () => {
     expect(result.length).toBe(1);
     expect(result[0].change).toBe("added");
   });
+  test("Detects suite removed", async () => {
+    const oldSuites = [{
+        title: "Old Suite",
+        suites: [],
+        tests: []
+    } as XTestSuite];
+    const newSuites = [];
+    const result = compare(oldSuites, newSuites);
+    expect(result.length).toBe(1);
+    expect(result[0].change).toBe("removed");
+  });
 });
