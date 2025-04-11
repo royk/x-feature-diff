@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 export type XChangeType = "added" | "removed" | "modified" | "unchanged";
 
-export type XTestSuiteDiff = {
+export interface XTestSuiteDiff {
   title: string;
   changes: XChangeType;
   suites?: XTestSuiteDiff[];
@@ -12,28 +12,28 @@ export type XTestSuiteDiff = {
   transparent?: boolean;
 }
 
-export type XTestTestDiff = {
+export interface XTestTestDiff {
   changes: XChangeType;
   test: XTestResult;
   transparent?: boolean;
 }
 
 export class XFeatureDiff implements XAdapter {
-  private reportOld: XTestSuite;
+  private oldResults: XTestSuite;
   private changesOnly: boolean;
   private options: Record<string, any>;
   constructor(options: Record<string, any>) {
     if (options.inputFile) {
       const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
-      this.reportOld = report;
+      this.oldResults = report;
     }
     this.changesOnly = options.changesOnly || false;
     this.options = options;
   }
-  public diff(reportNew: XTestSuite, reportOld: XTestSuite): XTestSuiteDiff {
+  public compareSuites(newSuite: XTestSuite, oldSuite: XTestSuite): XTestSuiteDiff {
     const tests:XTestTestDiff[] = [];
-    reportNew.tests.forEach(test => {
-      const oldTest = reportOld.tests.find(t => t.title === test.title);
+    newSuite.tests.forEach(test => {
+      const oldTest = oldSuite.tests.find(t => t.title === test.title);
       if (oldTest) {
         tests.push({
           changes: "unchanged",
@@ -47,8 +47,8 @@ export class XFeatureDiff implements XAdapter {
         });
       }
     });
-    reportOld.tests.forEach(test => {
-      const newTest = reportNew.tests.find(t => t.title === test.title);
+    oldSuite.tests.forEach(test => {
+      const newTest = newSuite.tests.find(t => t.title === test.title);
       if (!newTest) {
         tests.push({
           changes: "removed",
@@ -57,24 +57,23 @@ export class XFeatureDiff implements XAdapter {
       }
     });
     return {
-      title: reportNew.title,
-      changes: reportNew.title !== reportOld.title ? "modified" : "unchanged",
+      title: newSuite.title,
+      changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
       suites: [],
       tests: tests,
-      transparent: true
     }
   }
   
-  public generateMarkdown(diff: XTestSuiteDiff[]): void {
+  public compareAllSuites(suites: XTestSuiteDiff[]): XTestSuite[] {
     const reports:XTestSuite[] = [];
-    diff.forEach(diff => {
-    const titlePrefix = diff.changes === "modified" ? "🔄 " : "";
-    const report:XTestSuite = {
-      title: `${titlePrefix}${diff.title}`,
-      suites: [],
-      tests: []
+    suites.forEach(suite => {
+      const titlePrefix = suite.changes === "modified" ? "🔄 " : "";
+      const report:XTestSuite = {
+        title: `${titlePrefix}${suite.title}`,
+        suites: [],
+        tests: []
       } as XTestSuite;
-      diff.tests?.forEach(test => {
+      suite.tests?.forEach(test => {
         if (test.transparent) {
           return;
         }
@@ -86,20 +85,22 @@ export class XFeatureDiff implements XAdapter {
       });
       reports.push(report);
     });
-    new MarkdownAdapter({
-      outputFile: this.options.outputFile,
-      embeddingPlaceholder: this.options.embeddingPlaceholder,
-      fullReportLink: this.options.fullReportLink
-    }).generateReport(reports);
+   
+    return reports;
   }
-
+  
   public generateReport(results: XTestSuite[]): void {
     const diffs:XTestSuiteDiff[] = [];
-    if (this.reportOld) {
+    if (this.oldResults) {
       results.forEach(result => {
-        diffs.push(this.diff(result, this.reportOld[0]));
+        diffs.push(this.compareSuites(result, this.oldResults[0]));
       });
-      this.generateMarkdown(diffs);
+      const reports = this.compareAllSuites(diffs)
+      new MarkdownAdapter({
+        outputFile: this.options.outputFile,
+        embeddingPlaceholder: this.options.embeddingPlaceholder,
+        fullReportLink: this.options.fullReportLink
+      }).generateReport(reports);
     }
   }
 }

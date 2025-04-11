@@ -4,15 +4,15 @@ export class XFeatureDiff {
     constructor(options) {
         if (options.inputFile) {
             const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
-            this.reportOld = report;
+            this.oldResults = report;
         }
         this.changesOnly = options.changesOnly || false;
         this.options = options;
     }
-    diff(reportNew, reportOld) {
+    compareSuites(newSuite, oldSuite) {
         const tests = [];
-        reportNew.tests.forEach(test => {
-            const oldTest = reportOld.tests.find(t => t.title === test.title);
+        newSuite.tests.forEach(test => {
+            const oldTest = oldSuite.tests.find(t => t.title === test.title);
             if (oldTest) {
                 tests.push({
                     changes: "unchanged",
@@ -27,8 +27,8 @@ export class XFeatureDiff {
                 });
             }
         });
-        reportOld.tests.forEach(test => {
-            const newTest = reportNew.tests.find(t => t.title === test.title);
+        oldSuite.tests.forEach(test => {
+            const newTest = newSuite.tests.find(t => t.title === test.title);
             if (!newTest) {
                 tests.push({
                     changes: "removed",
@@ -37,24 +37,23 @@ export class XFeatureDiff {
             }
         });
         return {
-            title: reportNew.title,
-            changes: reportNew.title !== reportOld.title ? "modified" : "unchanged",
+            title: newSuite.title,
+            changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
             suites: [],
             tests: tests,
-            transparent: true
         };
     }
-    generateMarkdown(diff) {
+    compareAllSuites(suites) {
         const reports = [];
-        diff.forEach(diff => {
+        suites.forEach(suite => {
             var _a;
-            const titlePrefix = diff.changes === "modified" ? "🔄 " : "";
+            const titlePrefix = suite.changes === "modified" ? "🔄 " : "";
             const report = {
-                title: `${titlePrefix}${diff.title}`,
+                title: `${titlePrefix}${suite.title}`,
                 suites: [],
                 tests: []
             };
-            (_a = diff.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
+            (_a = suite.tests) === null || _a === void 0 ? void 0 : _a.forEach(test => {
                 if (test.transparent) {
                     return;
                 }
@@ -63,19 +62,20 @@ export class XFeatureDiff {
             });
             reports.push(report);
         });
-        new MarkdownAdapter({
-            outputFile: this.options.outputFile,
-            embeddingPlaceholder: this.options.embeddingPlaceholder,
-            fullReportLink: this.options.fullReportLink
-        }).generateReport(reports);
+        return reports;
     }
     generateReport(results) {
         const diffs = [];
-        if (this.reportOld) {
+        if (this.oldResults) {
             results.forEach(result => {
-                diffs.push(this.diff(result, this.reportOld[0]));
+                diffs.push(this.compareSuites(result, this.oldResults[0]));
             });
-            this.generateMarkdown(diffs);
+            const reports = this.compareAllSuites(diffs);
+            new MarkdownAdapter({
+                outputFile: this.options.outputFile,
+                embeddingPlaceholder: this.options.embeddingPlaceholder,
+                fullReportLink: this.options.fullReportLink
+            }).generateReport(reports);
         }
     }
 }

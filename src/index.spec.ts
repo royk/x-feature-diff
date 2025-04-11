@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { XTestSuite, XTestResult } from "x-feature-reporter";
+import type { XTestSuiteDiff, XTestTestDiff } from "./index";
 let XFeatureDiff: any = null;
-
 test.beforeAll(async () => {
   if (!process.env.CI) {
     const module = await import('x-feature-diff');
@@ -15,7 +15,7 @@ test.beforeAll(async () => {
 import sinon from 'sinon';
 import fs from 'fs';
 
-test.describe("Core features", () => { 
+test.describe("Diffing", () => { 
   test("Identifies that a suite title has changed", () => {
     const diff = new XFeatureDiff({});
     const report1 = {
@@ -33,6 +33,7 @@ test.describe("Core features", () => {
     expect(result.title).toBe("Suite 1");
     expect(result.changes).toBe("modified");
   });
+  
   test("Identifies that a test was added", () => {
     const diff = new XFeatureDiff({});
     const reportNew = {
@@ -93,7 +94,36 @@ test.describe("Core features", () => {
       expect(result.tests?.[1].changes).toBe("removed");
     }); 
   });
-  
+  test.describe("Generating", () => {
+    test.only("Doesn't duplicate tests in suits", () => {
+      const diff = new XFeatureDiff({});
+      const test1: XTestTestDiff = {
+        changes: "unchanged",
+        test: {
+          title: "Test 1",
+          status: "passed"
+        }
+      } as XTestTestDiff;
+      const suite1: XTestSuiteDiff = {
+        title: "Suite 1",
+        suites: [],
+        tests: [test1],
+        changes: "unchanged"
+      } as XTestSuiteDiff;
+      const suite2: XTestSuiteDiff = {
+        title: "Suite 2",
+        suites: [],
+        tests: [],
+        changes: "unchanged"
+      } as XTestSuiteDiff;
+      const results = diff.compareAllSuites([suite1, suite2]);
+      expect(results.length).toBe(2);
+      expect(results[0].title).toBe("Suite 1");
+      expect(results[0].tests.length).toBe(1);
+      expect(results[1].title).toBe("Suite 2");
+      expect(results[1].tests.length).toBe(0);
+    });
+  });
   test.describe("Adapter", () => {
     let writeFileSyncStub: sinon.SinonStub;
     test.beforeEach(() => {
