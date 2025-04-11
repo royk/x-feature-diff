@@ -64,6 +64,13 @@ export class XFeatureDiff {
         });
         return reports;
     }
+    generateMarkdown(results) {
+        new MarkdownAdapter({
+            outputFile: this.options.outputFile,
+            embeddingPlaceholder: this.options.embeddingPlaceholder,
+            fullReportLink: this.options.fullReportLink
+        }).generateReport(results);
+    }
     generateReport(results) {
         const diffs = [];
         if (this.oldResults) {
@@ -71,11 +78,7 @@ export class XFeatureDiff {
                 diffs.push(this.compareSuites(result, this.oldResults[0]));
             });
             const reports = this.compareAllSuites(diffs);
-            new MarkdownAdapter({
-                outputFile: this.options.outputFile,
-                embeddingPlaceholder: this.options.embeddingPlaceholder,
-                fullReportLink: this.options.fullReportLink
-            }).generateReport(reports);
+            this.generateMarkdown(reports);
         }
     }
 }

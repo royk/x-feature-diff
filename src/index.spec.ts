@@ -28,7 +28,7 @@ test.describe("Diffing", () => {
       suites: [],
       tests: []
     } as XTestSuite;
-    const result = diff.diff(report1, report2);
+    const result = diff.compareSuites(report1, report2);
     
     expect(result.title).toBe("Suite 1");
     expect(result.changes).toBe("modified");
@@ -55,7 +55,7 @@ test.describe("Diffing", () => {
         status: 'passed'
       }]
     } as XTestSuite;
-    const result = diff.diff(reportNew, reportOld);
+    const result = diff.compareSuites(reportNew, reportOld);
     
     expect(result.tests?.length).toBe(2);
     expect(result.tests?.[0].test.title).toBe("Test 1");
@@ -86,7 +86,7 @@ test.describe("Diffing", () => {
           status: 'passed'
         }]
       } as XTestSuite;
-      const result = diff.diff(reportNew, reportOld);
+      const result = diff.compareSuites(reportNew, reportOld);
       expect(result.tests?.length).toBe(2);
       expect(result.tests?.[0].test.title).toBe("Test 1");
       expect(result.tests?.[0].changes).toBe("unchanged");
@@ -95,7 +95,7 @@ test.describe("Diffing", () => {
     }); 
   });
   test.describe("Generating", () => {
-    test.only("Doesn't duplicate tests in suits", () => {
+    test("Doesn't duplicate tests in suits", () => {
       const diff = new XFeatureDiff({});
       const test1: XTestTestDiff = {
         changes: "unchanged",
@@ -188,8 +188,8 @@ test.describe("Diffing", () => {
         suites: [],
         tests: [test]
       } as XTestSuite;
-      const diffJson = differ.diff(reportNew, reportOld);
-      differ.generateMarkdown([diffJson]);
+      const diffJson = differ.compareSuites(reportNew, reportOld);
+      differ.generateMarkdown(differ.compareAllSuites([diffJson]));
       const expected = `\n## 🔄 ${newTitle}\n - ✅ Test 1\n`
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
@@ -211,8 +211,8 @@ test.describe("Diffing", () => {
         suites: [],
         tests: []
       } as XTestSuite;
-      const result = diff.diff(reportNew, reportOld);
-      differ.generateMarkdown([result]);
+      const result = diff.compareSuites(reportNew, reportOld);
+      differ.generateMarkdown(differ.compareAllSuites([result]));
       const expected = "\n## " + suiteTitle + "\n - ✅ 🆕 " + testTitle + "\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);
@@ -234,8 +234,8 @@ test.describe("Diffing", () => {
           status: 'passed'
         }]
       } as XTestSuite;
-      const result = diff.diff(reportNew, reportOld);
-      differ.generateMarkdown([result]);
+      const result = diff.compareSuites(reportNew, reportOld);
+      differ.generateMarkdown(differ.compareAllSuites([result]));
       const expected = "\n## " + suiteTitle + "\n - ✅ 🗑️ " + testTitle + "\n"
       const actual = writeFileSyncStub.getCall(0)?.args[1];
       expect(actual).toBe(expected);

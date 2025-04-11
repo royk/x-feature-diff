@@ -88,6 +88,14 @@ export class XFeatureDiff implements XAdapter {
    
     return reports;
   }
+
+  public generateMarkdown(results: XTestSuite[]): void {
+    new MarkdownAdapter({
+      outputFile: this.options.outputFile,
+      embeddingPlaceholder: this.options.embeddingPlaceholder,
+      fullReportLink: this.options.fullReportLink
+    }).generateReport(results);
+  }
   
   public generateReport(results: XTestSuite[]): void {
     const diffs:XTestSuiteDiff[] = [];
@@ -96,11 +104,8 @@ export class XFeatureDiff implements XAdapter {
         diffs.push(this.compareSuites(result, this.oldResults[0]));
       });
       const reports = this.compareAllSuites(diffs)
-      new MarkdownAdapter({
-        outputFile: this.options.outputFile,
-        embeddingPlaceholder: this.options.embeddingPlaceholder,
-        fullReportLink: this.options.fullReportLink
-      }).generateReport(reports);
+      this.generateMarkdown(reports);
+      
     }
   }
 }

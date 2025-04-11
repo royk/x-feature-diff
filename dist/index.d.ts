@@ -19,5 +19,6 @@ export declare class XFeatureDiff implements XAdapter {
     constructor(options: Record<string, any>);
     compareSuites(newSuite: XTestSuite, oldSuite: XTestSuite): XTestSuiteDiff;
     compareAllSuites(suites: XTestSuiteDiff[]): XTestSuite[];
+    generateMarkdown(results: XTestSuite[]): void;
     generateReport(results: XTestSuite[]): void;
 }
