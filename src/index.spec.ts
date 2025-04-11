@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import type { XTestSuite, XTestResult } from "x-feature-reporter";
-import type { XTestSuiteDiff, XTestTestDiff } from "./index";
 let XFeatureDiff: any = null;
 test.beforeAll(async () => {
   if (!process.env.CI) {
