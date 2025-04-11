@@ -31,7 +31,11 @@ async function getConfig() {
     },
     projects: [
       {
-        name: 'no-browser'
+        name: 'no-browser',
+        use: {
+          browserName: undefined,
+          headless: true
+        }
       }
     ]
   });

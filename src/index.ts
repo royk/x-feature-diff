@@ -1,142 +1,19 @@
-import type { XTestSuite as XTestSuite, XTestResult as XTestResult, XAdapter } from 'x-feature-reporter';
-import { MarkdownAdapter } from "x-feature-reporter/adapters/markdown";
-import { existsSync, readFileSync } from 'fs';
+import type { XTestSuite as XTestSuite } from 'x-feature-reporter';
 
-export type XChangeType = "added" | "removed" | "modified" | "unchanged";
-
-export interface XTestSuiteDiff {
-  title: string;
-  changes: XChangeType;
-  suites?: XTestSuiteDiff[];
-  tests?: XTestTestDiff[];
-  transparent?: boolean;
+type XTestSuiteChange = {
+    change: "added" | "removed" | "";
+    suite: XTestSuite;
 }
 
-export interface XTestTestDiff {
-  changes: XChangeType;
-  test: XTestResult;
-  transparent?: boolean;
-}
-
-export class XFeatureDiff implements XAdapter {
-  private oldResults: XTestSuite[];
-  private changesOnly: boolean;
-  private options: Record<string, any>;
-  constructor(options: Record<string, any>) {
-    if (options.inputFile) {
-      if (!existsSync(options.inputFile)) {
-        this.oldResults = [];
-      } else {
-        const report = JSON.parse(readFileSync(options.inputFile, 'utf8'));
-        this.oldResults = report;
-      }
-    }
-    this.changesOnly = options.changesOnly || false;
-    this.options = options;
-  }
-  public compareSuites(newSuite: XTestSuite, oldSuite: XTestSuite): XTestSuiteDiff {
-    const suiteComparison:XTestSuiteDiff = {
-      title: newSuite.title,
-      changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
-      suites: [],
-      tests: []
-    };
-    newSuite.tests.forEach(test => {
-      const oldTest = oldSuite.tests.find(t => t.title === test.title);
-      if (oldTest) {
-        suiteComparison.tests.push({
-          changes: "unchanged",
-          test,
-          transparent: this.changesOnly
-        });
-      } else {
-        suiteComparison.tests.push({
-          changes: "added",
-          test,
-        });
-      }
-    });
-    oldSuite.tests.forEach(test => {
-      const newTest = newSuite.tests.find(t => t.title === test.title);
-      if (!newTest) {
-        suiteComparison.tests.push({
-          changes: "removed",
-          test,
-        });
-      }
-    });
-    return suiteComparison;
-  }
-
-  private getChangeEmoji(change: XChangeType): string {
-    switch (change) {
-      case "added":
-        return "🆕 ";
-      case "removed":
-        return "🗑️ ";
-      case "modified":
-        return "🔄 ";
-      case "unchanged":
-        return "";
-    }
-  }
-  
-  public mergeSuites(suites: XTestSuiteDiff[]): XTestSuite[] {
-    const reports:XTestSuite[] = [];
-    suites.forEach(suite => {
-      const titlePrefix = this.getChangeEmoji(suite.changes);
-      const report:XTestSuite = {
-        title: `${titlePrefix}${suite.title}`,
-        suites: [],
-        tests: []
-      } as XTestSuite;
-      suite.tests?.forEach(test => {
-        if (test.transparent) {
-          return;
+export function compare(oldSuites: XTestSuite[], newSuites: XTestSuite[]) : XTestSuiteChange[] {
+    const changes: XTestSuiteChange[] = [];
+    newSuites.forEach(newSuite => {
+        const oldSuite = oldSuites.find(oldSuite => oldSuite.title === newSuite.title);
+        if (oldSuite) {
+            changes.push({ change: "", suite: newSuite });
+        } else {
+            changes.push({ change: "added", suite: newSuite });
         }
-        const testTitlePrefix = this.getChangeEmoji(test.changes);
-        report.tests.push({
-          ...test.test,
-          title: `${testTitlePrefix}${test.test.title}`
-        });
-      });
-      reports.push(report);
     });
-   
-    return reports;
-  }
-
-  public compareSuiteArray(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[] {
-    const diffs:XTestSuiteDiff[] = [];
-    newSuite.forEach(suite => {
-      const compareTo = oldSuite.find(s => s.title === suite.title);
-      if (compareTo) {
-        diffs.push(this.compareSuites(suite, compareTo));
-      } else {
-        diffs.push({
-          title: suite.title,
-          changes: "added",
-          tests: suite.tests.map(test => ({
-            changes: "added",
-            test: test
-          }))
-        });
-      }
-    });
-    return diffs;
-  }
-
-  public generateMarkdown(results: XTestSuite[]): void {
-    new MarkdownAdapter({
-      outputFile: this.options.outputFile,
-      embeddingPlaceholder: this.options.embeddingPlaceholder,
-      fullReportLink: this.options.fullReportLink
-    }).generateReport(results);
-  }
-  
-  public generateReport(results: XTestSuite[]): void {
-    const diffs = this.compareSuiteArray(results, this.oldResults);
-    const reports = this.mergeSuites(diffs);
-    this.generateMarkdown(reports);
-  }
+    return changes;
 }

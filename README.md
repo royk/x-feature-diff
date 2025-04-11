@@ -2,18 +2,5 @@
 Compares two x-feature-reports and outputs their diff to a standardized JSON format.
 
 <!-- playwright-feature-reporter--start -->
-## Diffing
- - ✅ Identifies that a suite title has changed
- - ✅ Identifies that a test was added
- - ✅ Identifies that a test was removed
-## Generating
- - ✅ Doesn't duplicate tests in suits
-## Adapter
- - ✅ Accepts outputFile
- - ✅ Accepts a JSON input file
- - ✅ Can handle missing output file
- - ✅ Accepts a switch that indicates to only render changes
-## Markdown
- - ✅ Indicates in markdown that a suite title has changed
- - ✅ Indicates in markdown that a test was added
- - ✅ Indicates in markdown that a test was removed
+## x-feature-diff
+ - ✅ Detects suite added
