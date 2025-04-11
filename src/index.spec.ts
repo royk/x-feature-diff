@@ -100,7 +100,7 @@ test.describe("Diffing", () => {
       const newResults = JSON.parse(fs.readFileSync('./test-data/output2-new.json', 'utf8'));
       const diff = new XFeatureDiff({inputFile: './test-data/output2-old.json', outputFile: './test-data/test.md'});
 
-      const diffs = diff.compareAllSuites(newResults, oldResults);
+      const diffs = diff.compareSuiteArray(newResults, oldResults);
       expect(diffs.length).toBe(2);
     });
   });

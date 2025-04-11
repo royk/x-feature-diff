@@ -108,7 +108,7 @@ export class XFeatureDiff implements XAdapter {
     return reports;
   }
 
-  public compareAllSuites(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[] {
+  public compareSuiteArray(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[] {
     const diffs:XTestSuiteDiff[] = [];
     newSuite.forEach(suite => {
       const compareTo = oldSuite.find(s => s.title === suite.title);
@@ -137,7 +137,7 @@ export class XFeatureDiff implements XAdapter {
   }
   
   public generateReport(results: XTestSuite[]): void {
-    const diffs = this.compareAllSuites(results, this.oldResults);
+    const diffs = this.compareSuiteArray(results, this.oldResults);
     const reports = this.mergeSuites(diffs);
     this.generateMarkdown(reports);
   }

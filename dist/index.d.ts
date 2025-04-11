@@ -20,7 +20,7 @@ export declare class XFeatureDiff implements XAdapter {
     compareSuites(newSuite: XTestSuite, oldSuite: XTestSuite): XTestSuiteDiff;
     private getChangeEmoji;
     mergeSuites(suites: XTestSuiteDiff[]): XTestSuite[];
-    compareAllSuites(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[];
+    compareSuiteArray(newSuite: XTestSuite[], oldSuite: XTestSuite[]): XTestSuiteDiff[];
     generateMarkdown(results: XTestSuite[]): void;
     generateReport(results: XTestSuite[]): void;
 }

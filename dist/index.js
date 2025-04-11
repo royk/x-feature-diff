@@ -83,7 +83,7 @@ export class XFeatureDiff {
         });
         return reports;
     }
-    compareAllSuites(newSuite, oldSuite) {
+    compareSuiteArray(newSuite, oldSuite) {
         const diffs = [];
         newSuite.forEach(suite => {
             const compareTo = oldSuite.find(s => s.title === suite.title);
@@ -111,7 +111,7 @@ export class XFeatureDiff {
         }).generateReport(results);
     }
     generateReport(results) {
-        const diffs = this.compareAllSuites(results, this.oldResults);
+        const diffs = this.compareSuiteArray(results, this.oldResults);
         const reports = this.mergeSuites(diffs);
         this.generateMarkdown(reports);
     }
