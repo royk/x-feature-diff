@@ -36,17 +36,22 @@ export class XFeatureDiff implements XAdapter {
     this.options = options;
   }
   public compareSuites(newSuite: XTestSuite, oldSuite: XTestSuite): XTestSuiteDiff {
-    const tests:XTestTestDiff[] = [];
+    const suiteComparison:XTestSuiteDiff = {
+      title: newSuite.title,
+      changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
+      suites: [],
+      tests: []
+    };
     newSuite.tests.forEach(test => {
       const oldTest = oldSuite.tests.find(t => t.title === test.title);
       if (oldTest) {
-        tests.push({
+        suiteComparison.tests.push({
           changes: "unchanged",
           test,
           transparent: this.changesOnly
         });
       } else {
-        tests.push({
+        suiteComparison.tests.push({
           changes: "added",
           test,
         });
@@ -55,18 +60,13 @@ export class XFeatureDiff implements XAdapter {
     oldSuite.tests.forEach(test => {
       const newTest = newSuite.tests.find(t => t.title === test.title);
       if (!newTest) {
-        tests.push({
+        suiteComparison.tests.push({
           changes: "removed",
           test,
         });
       }
     });
-    return {
-      title: newSuite.title,
-      changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
-      suites: [],
-      tests: tests,
-    }
+    return suiteComparison;
   }
 
   private getChangeEmoji(change: XChangeType): string {
@@ -75,7 +75,6 @@ export class XFeatureDiff implements XAdapter {
         return "🆕 ";
       case "removed":
         return "🗑️ ";
-        break;
       case "modified":
         return "🔄 ";
       case "unchanged":

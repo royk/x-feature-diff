@@ -16,18 +16,23 @@ export class XFeatureDiff {
         this.options = options;
     }
     compareSuites(newSuite, oldSuite) {
-        const tests = [];
+        const suiteComparison = {
+            title: newSuite.title,
+            changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
+            suites: [],
+            tests: []
+        };
         newSuite.tests.forEach(test => {
             const oldTest = oldSuite.tests.find(t => t.title === test.title);
             if (oldTest) {
-                tests.push({
+                suiteComparison.tests.push({
                     changes: "unchanged",
                     test,
                     transparent: this.changesOnly
                 });
             }
             else {
-                tests.push({
+                suiteComparison.tests.push({
                     changes: "added",
                     test,
                 });
@@ -36,18 +41,13 @@ export class XFeatureDiff {
         oldSuite.tests.forEach(test => {
             const newTest = newSuite.tests.find(t => t.title === test.title);
             if (!newTest) {
-                tests.push({
+                suiteComparison.tests.push({
                     changes: "removed",
                     test,
                 });
             }
         });
-        return {
-            title: newSuite.title,
-            changes: newSuite.title !== oldSuite.title ? "modified" : "unchanged",
-            suites: [],
-            tests: tests,
-        };
+        return suiteComparison;
     }
     getChangeEmoji(change) {
         switch (change) {
@@ -55,7 +55,6 @@ export class XFeatureDiff {
                 return "🆕 ";
             case "removed":
                 return "🗑️ ";
-                break;
             case "modified":
                 return "🔄 ";
             case "unchanged":
